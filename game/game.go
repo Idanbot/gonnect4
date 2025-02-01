@@ -21,15 +21,61 @@ type Game struct {
 	Turn    int
 }
 
-func GameLoop() {
+func Menu() {
+	fmt.Println("1. Start Game vs AI")
+	fmt.Println("2. Start Game vs Player")
+	fmt.Println("3. Exit")
+	reader := bufio.NewReader(os.Stdin)
+	r, _, _ := reader.ReadRune()
+	switch r {
+	case '1':
+		AIvpGameLoop()
+	case '2':
+		PvpGameLoop()
+	case '3':
+		fmt.Println("Goodbye!")
+		os.Exit(0)
+	default:
+		fmt.Println("Invalid input. Try again.")
+		fmt.Println()
+		Menu()
+	}
+}
+
+func AIvpGameLoop() {
+	fmt.Println("Player vs AI selected!")
+	fmt.Println("You are Player X.")
+	fmt.Println("AI is Player O.")
 	g := NewGame()
+	g.PrintBoard()
 	for {
 		fmt.Println("Turn: Player", g.GetTurnSymbol())
+		if g.GetTurnSymbol() == "X" {
+			g.Play()
+		} else {
+			g.PlayAI()
+		}
 		g.PrintBoard()
-		g.Play()
 		g.SwitchTurn()
 		fmt.Println()
-		if g.CheckWinner() {
+		if g.CheckWinner() || g.CheckDraw() {
+			g = NewGame()
+		}
+		fmt.Println()
+	}
+}
+
+func PvpGameLoop() {
+	fmt.Println("Player vs Player selected!")
+	g := NewGame()
+	g.PrintBoard()
+	for {
+		fmt.Println("Turn: Player", g.GetTurnSymbol())
+		g.Play()
+		g.PrintBoard()
+		g.SwitchTurn()
+		fmt.Println()
+		if g.CheckWinner() || g.CheckDraw() {
 			g = NewGame()
 		}
 		fmt.Println()
@@ -83,13 +129,31 @@ func (g *Game) Play() {
 		fmt.Println("Invalid input, please enter a number between 1-7.")
 		return
 	}
-	column -= 1
+
+	if !g.DropPiece(column) {
+		fmt.Println("Column is full. Try again.")
+		g.Play()
+	}
+}
+
+func (g *Game) PlayAI() {
+	// AI plays randomly from 1-7
+	column := rand.Intn(Columns) + 1
+	if !g.DropPiece(column) {
+		g.PlayAI()
+	}
+}
+
+func (g *Game) DropPiece(column int) bool {
+	column--
 	for i := Rows - 2; i >= 0; i-- {
 		if g.Board[i][column] == "." {
 			g.Board[i][column] = g.GetTurnSymbol()
-			break
+			return true
 		}
 	}
+
+	return false
 }
 
 func (g *Game) CheckWinner() bool {
@@ -116,6 +180,28 @@ func (g *Game) CheckWinner() bool {
 		}
 	}
 
+	return false
+}
+
+func (g *Game) CheckDraw() bool {
+	for _, row := range g.Board {
+		for _, cell := range row {
+			if cell == "." {
+				return false
+			}
+		}
+	}
+
+	fmt.Println("It's a draw!")
+	fmt.Println("Press R to restart or any other key to exit.")
+	reader := bufio.NewReader(os.Stdin)
+	r, _, _ := reader.ReadRune()
+	if r == 'R' || r == 'r' {
+		return true
+	}
+
+	fmt.Println("Goodbye!")
+	os.Exit(0)
 	return false
 }
 

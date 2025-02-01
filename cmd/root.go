@@ -15,9 +15,9 @@ var rootCmd = &cobra.Command{
 	Use:   "gonnect4",
 	Short: "A CLI Connect-4 game",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Welcome to Connect-4!\nGame started:")
+		fmt.Println("Welcome to Connect-4!")
 		fmt.Println()
-		game.GameLoop()
+		game.Menu()
 	},
 }
 
