@@ -11,7 +11,7 @@ import (
 
 const (
 	Players = 2
-	Rows    = 7
+	Rows    = 6
 	Columns = 7
 )
 
@@ -90,13 +90,6 @@ func NewGame() *Game {
 		}
 	}
 
-	g.Board[6][0] = "₁"
-	g.Board[6][1] = "₂"
-	g.Board[6][2] = "₃"
-	g.Board[6][3] = "₄"
-	g.Board[6][4] = "₅"
-	g.Board[6][5] = "₆"
-	g.Board[6][6] = "₇"
 	return g
 }
 
@@ -107,6 +100,7 @@ func (g *Game) PrintBoard() {
 		}
 		fmt.Println()
 	}
+	fmt.Println("₁ ₂ ₃ ₄ ₅ ₆ ₇")
 }
 
 func (g *Game) Play() {
@@ -146,7 +140,7 @@ func (g *Game) PlayAI() {
 
 func (g *Game) DropPiece(column int) bool {
 	column--
-	for i := Rows - 2; i >= 0; i-- {
+	for i := Rows - 1; i >= 0; i-- {
 		if g.Board[i][column] == "." {
 			g.Board[i][column] = g.GetTurnSymbol()
 			return true
