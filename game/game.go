@@ -51,7 +51,9 @@ func AIvpGameLoop() {
 	for {
 		fmt.Println("Turn: Player", g.GetTurnSymbol())
 		if g.GetTurnSymbol() == "X" {
-			g.Play()
+			if g.Play() == 0 {
+				g.SwitchTurn()
+			}
 		} else {
 			g.PlayAI()
 		}
@@ -71,7 +73,9 @@ func PvpGameLoop() {
 	g.PrintBoard()
 	for {
 		fmt.Println("Turn: Player", g.GetTurnSymbol())
-		g.Play()
+		if g.Play() == 0 {
+			g.SwitchTurn()
+		}
 		g.PrintBoard()
 		g.SwitchTurn()
 		fmt.Println()
@@ -103,14 +107,14 @@ func (g *Game) PrintBoard() {
 	fmt.Println("₁ ₂ ₃ ₄ ₅ ₆ ₇")
 }
 
-func (g *Game) Play() {
+func (g *Game) Play() int {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Enter a column number to play (Q to Exit):")
 
 	r, _, err := reader.ReadRune()
 	if err != nil {
 		fmt.Println("Error reading input. Try again.")
-		return
+		return 0
 	}
 
 	if r == 'Q' || r == 'q' {
@@ -121,13 +125,15 @@ func (g *Game) Play() {
 	column, err := strconv.Atoi(string(r))
 	if err != nil || column < 1 || column > Columns || !unicode.IsDigit(r) {
 		fmt.Println("Invalid input, please enter a number between 1-7.")
-		return
+		return 0
 	}
 
 	if !g.DropPiece(column) {
 		fmt.Println("Column is full. Try again.")
-		g.Play()
+		return 0
 	}
+
+	return 1
 }
 
 func (g *Game) PlayAI() {
